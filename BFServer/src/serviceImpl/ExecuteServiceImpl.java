@@ -20,9 +20,10 @@ public class ExecuteServiceImpl implements ExecuteService {
 
 	/**
 	 * 请实现该方法
+	 * @throws RemoteException,Exception 
 	 */
 	@Override
-	public String execute(String code, String param) throws RemoteException {
+	public String execute(String code, String param) throws RemoteException,Exception {
 		// 初始化
 		BFPointer = 0;
 		BFPosition = 0;
@@ -37,13 +38,27 @@ public class ExecuteServiceImpl implements ExecuteService {
 			codeArray[i] = code.substring(i, i + 1).charAt(0);
 		}
 
+		// 检查代码正确性
+		int counter = 0;
+		for (int i = 0; i < code.length(); i++) {
+			if (codeArray[i] == '[') {
+				counter++;
+			}
+			if (codeArray[i] == ']') {
+				counter--;
+			}
+		}
+		if (counter != 0) {
+			throw new Exception("The code is not correct");
+		}
+
 		// 将输入的数值转化成数组
-		String[] params = new String[param.length()+1];
-		for(int i = 0 ; i<param.length();i++){
-			params[i] = param.substring(i,i+1);
+		String[] params = new String[param.length() + 1];
+		for (int i = 0; i < param.length(); i++) {
+			params[i] = param.substring(i, i + 1);
 		}
 		params[param.length()] = "\r\n";
-		
+
 		// 设定参数指针
 		int paramPointer = 0;
 
@@ -76,7 +91,7 @@ public class ExecuteServiceImpl implements ExecuteService {
 				}
 				break;
 			case '.':
-				result += BFArray[BFPointer]+"";
+				result += BFArray[BFPointer] + "";
 				break;
 			case '[':
 				if (BFArray[BFPointer] == 0) {
@@ -93,9 +108,9 @@ public class ExecuteServiceImpl implements ExecuteService {
 				}
 				break;
 			case ']':
-				if (BFArray[BFPointer] != 0){
+				if (BFArray[BFPointer] != 0) {
 					BFjumper = 1;
-					while (BFjumper!=0) {
+					while (BFjumper != 0) {
 						BFPosition--;
 						if (codeArray[BFPosition] == '[') {
 							BFjumper--;
