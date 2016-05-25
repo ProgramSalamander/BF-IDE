@@ -1,0 +1,118 @@
+//请不要修改本文件名
+package serviceImpl;
+
+import java.rmi.RemoteException;
+
+import service.ExecuteService;
+import service.UserService;
+
+public class ExecuteServiceImpl implements ExecuteService {
+	// BF数组大小
+	private int BFArraySize = 1024;
+	// BF数组(其中存储的是字节的值)
+	private char[] BFArray = new char[BFArraySize];
+	// BF指针的位置
+	private int BFPointer;
+	// BF当前解释的字符在code中的位置
+	private int BFPosition;
+	// BF跳转指令
+	private int BFjumper;
+
+	/**
+	 * 请实现该方法
+	 */
+	@Override
+	public String execute(String code, String param) throws RemoteException {
+		// 初始化
+		BFPointer = 0;
+		BFPosition = 0;
+		BFjumper = 0;
+
+		// 设定返回值
+		String result = "";
+
+		// 将BF字符串转换成字符数组
+		char[] codeArray = new char[code.length()];
+		for (int i = 0; i < codeArray.length; i++) {
+			codeArray[i] = code.substring(i, i + 1).charAt(0);
+		}
+
+		// 将输入的数值转化成数组
+		String[] params = new String[param.length()+1];
+		for(int i = 0 ; i<param.length();i++){
+			params[i] = param.substring(i,i+1);
+		}
+		params[param.length()] = "\r\n";
+		
+		// 设定参数指针
+		int paramPointer = 0;
+
+		while (BFPosition <= code.length()) {
+			switch (codeArray[BFPosition]) {
+			case '+':
+				if (BFArray[BFPointer] < 127) {
+					BFArray[BFPointer]++;
+				}
+				break;
+			case '-':
+				if (BFArray[BFPointer] > -128) {
+					BFArray[BFPointer]--;
+				}
+				break;
+			case '>':
+				if (BFPointer < BFArraySize) {
+					BFPointer++;
+				}
+				break;
+			case '<':
+				if (BFPointer > 0) {
+					BFPointer--;
+				}
+				break;
+			case ',':
+				BFArray[BFPointer] = params[paramPointer].charAt(0);
+				if (paramPointer < params.length) {
+					paramPointer++;
+				}
+				break;
+			case '.':
+				result += BFArray[BFPointer]+"";
+				break;
+			case '[':
+				if (BFArray[BFPointer] == 0) {
+					BFjumper = 1;
+					while (BFjumper != 0) {
+						BFPosition++;
+						if (codeArray[BFPosition] == '[') {
+							BFjumper++;
+						}
+						if (codeArray[BFPosition] == ']') {
+							BFjumper--;
+						}
+					}
+				}
+				break;
+			case ']':
+				if (BFArray[BFPointer] != 0){
+					BFjumper = 1;
+					while (BFjumper!=0) {
+						BFPosition--;
+						if (codeArray[BFPosition] == '[') {
+							BFjumper--;
+						}
+						if (codeArray[BFPosition] == ']') {
+							BFjumper++;
+						}
+					}
+				}
+				break;
+			default:
+				break;
+			}
+			BFPosition++;
+		}
+
+		return result;
+	}
+
+}
