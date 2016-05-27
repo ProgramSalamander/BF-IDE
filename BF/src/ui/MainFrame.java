@@ -115,17 +115,12 @@ public class MainFrame extends JFrame {
 	}
 
 	class NewActionListener implements ActionListener {
-		/**
-		 * 子菜单响应事件
-		 */
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String code = codeArea.getText();
-			try {
-				RemoteHelper.getInstance().getIOService().writeFile(code, "admin", "code");
-			} catch (RemoteException e1) {
-				e1.printStackTrace();
-			}
+			codeArea.setText("");
+			inputArea.setText("");
+			resultlabel.setText("result");
 		}
 	}
 
@@ -133,7 +128,12 @@ public class MainFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-
+			try {
+				codeArea.setText(RemoteHelper.getInstance().getIOService().readFile("admin", "code"));
+			} catch (RemoteException e1) {
+				// TODO 自动生成的 catch 块
+				e1.printStackTrace();
+			}
 		}
 
 	}
