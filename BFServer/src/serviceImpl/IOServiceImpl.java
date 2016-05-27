@@ -1,8 +1,11 @@
 package serviceImpl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.rmi.RemoteException;
 
 import service.IOService;
 
@@ -11,6 +14,14 @@ public class IOServiceImpl implements IOService{
 	@Override
 	public boolean writeFile(String file, String userId, String fileName) {
 		File f = new File(userId + "_" + fileName);
+		if(!f.exists()){
+			try {
+				f.createNewFile();
+			} catch (IOException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
+			}
+		}
 		try {
 			FileWriter fw = new FileWriter(f, false);
 			fw.write(file);
@@ -25,8 +36,22 @@ public class IOServiceImpl implements IOService{
 
 	@Override
 	public String readFile(String userId, String fileName) {
-		// TODO Auto-generated method stub
-		return "OK";
+		File f = new File(userId + "_" + fileName);
+		String code = "";
+		try {
+			FileReader fileReader = new FileReader(f);
+			char[] buf = new char[16];
+			while(fileReader.read(buf,0,buf.length)!=-1){
+				fileReader.read(buf);
+				code += buf.toString();
+			}
+			fileReader.close();
+		} catch (Exception e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+		return code;
+		
 	}
 
 	@Override
@@ -34,5 +59,7 @@ public class IOServiceImpl implements IOService{
 		// TODO Auto-generated method stub
 		return "OK";
 	}
+
+	
 	
 }

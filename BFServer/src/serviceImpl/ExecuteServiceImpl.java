@@ -20,14 +20,18 @@ public class ExecuteServiceImpl implements ExecuteService {
 
 	/**
 	 * 请实现该方法
-	 * @throws RemoteException,Exception 
+	 * 
+	 * @throws RemoteException,Exception
 	 */
 	@Override
-	public String execute(String code, String param) throws RemoteException,Exception {
+	public String execute(String code, String param) throws RemoteException, Exception {
 		// 初始化
 		BFPointer = 0;
 		BFPosition = 0;
 		BFjumper = 0;
+		for (int i = 0; i < BFArraySize; i++) {
+			BFArray[i] = 0;
+		}
 
 		// 设定返回值
 		String result = "";
@@ -57,12 +61,12 @@ public class ExecuteServiceImpl implements ExecuteService {
 		for (int i = 0; i < param.length(); i++) {
 			params[i] = param.substring(i, i + 1);
 		}
-		params[param.length()] = "\r\n";
+		params[param.length()] = "\n";
 
 		// 设定参数指针
 		int paramPointer = 0;
 
-		while (BFPosition <= code.length()) {
+		while (BFPosition < code.length()) {
 			switch (codeArray[BFPosition]) {
 			case '+':
 				if (BFArray[BFPointer] < 127) {
