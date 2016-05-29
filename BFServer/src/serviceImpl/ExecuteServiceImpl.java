@@ -55,6 +55,9 @@ public class ExecuteServiceImpl implements ExecuteService {
 		if (counter != 0) {
 			throw new Exception("The code is not correct");
 		}
+		if(code.contains("[]")){
+			throw new Exception("Dead loop");
+		}
 
 		// 将输入的数值转化成数组
 		String[] params = new String[param.length() + 1];

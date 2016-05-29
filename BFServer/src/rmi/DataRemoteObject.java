@@ -60,6 +60,12 @@ public class DataRemoteObject extends UnicastRemoteObject implements IOService, 
 		return executeService.execute(code, param);
 	}
 
+	@Override
+	public boolean regist(String username, String password,String assurepassword) throws RemoteException {
+		// TODO 自动生成的方法存根
+		return userService.regist(username, password,assurepassword);
+	}
+
 
 
 }

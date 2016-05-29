@@ -8,6 +8,7 @@ import service.UserService;
 
 public class RemoteHelper {
 	private Remote remote;
+	private String currentUser;
 	private static RemoteHelper remoteHelper = new RemoteHelper();
 	public static RemoteHelper getInstance(){
 		return remoteHelper;
@@ -15,7 +16,9 @@ public class RemoteHelper {
 	
 	private RemoteHelper() {
 	}
-	
+	public void setUser(String username){
+		currentUser = username;
+	}
 	public void setRemote(Remote remote){
 		this.remote = remote;
 	}

@@ -1,10 +1,13 @@
 package runner;
 
+import java.io.File;
+import java.io.IOException;
+
 import rmi.RemoteHelper;
 
 public class ServerRunner {
-	
 	public ServerRunner() {
+		
 		new RemoteHelper();
 	}
 	

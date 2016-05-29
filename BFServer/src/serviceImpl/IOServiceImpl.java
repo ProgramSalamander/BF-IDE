@@ -1,5 +1,6 @@
 package serviceImpl;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -13,7 +14,11 @@ public class IOServiceImpl implements IOService{
 	
 	@Override
 	public boolean writeFile(String file, String userId, String fileName) {
-		File f = new File(userId + "_" + fileName);
+		File d = new File(userId);
+		if(!d.exists()){
+			d.mkdirs();
+		}
+		File f = new File(d,userId + "_" + fileName);
 		if(!f.exists()){
 			try {
 				f.createNewFile();
@@ -35,19 +40,25 @@ public class IOServiceImpl implements IOService{
 
 	@Override
 	public String readFile(String userId, String fileName) {
-		File f = new File(userId + "_" + fileName);
+		File d = new File(userId);
+		if(!d.exists()){
+			d.mkdirs();
+		}
+		File f = new File(d,userId + "_" + fileName);
+		if(!f.exists()){
+			try {
+				f.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		String code = "";
 		try {
 			FileReader fileReader = new FileReader(f);
-			char[] buf = new char[16];
-			int i =0;
-			while((i =fileReader.read(buf,0,buf.length))!=-1){
-				fileReader.read(buf,0,i);
-				code +=new String(buf);
-			}
-			fileReader.close();
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			code = bufferedReader.readLine();
+			bufferedReader.close();
 		} catch (Exception e) {
-			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 		}
 		return code;
@@ -56,8 +67,17 @@ public class IOServiceImpl implements IOService{
 
 	@Override
 	public String readFileList(String userId) {
-		// TODO Auto-generated method stub
-		return "OK";
+		File d = new File(userId);
+		File[] files = d.listFiles();
+		String fileList= "";
+		for(int i=0;i<files.length;i++){
+			if(i !=files.length-1)
+				fileList += files[i].getName()+"//";
+			else {
+				fileList +=files[i].getName();
+			}
+		}
+		return fileList;
 	}
 
 	
