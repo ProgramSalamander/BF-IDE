@@ -68,6 +68,9 @@ public class IOServiceImpl implements IOService{
 	@Override
 	public String readFileList(String userId) {
 		File d = new File(userId);
+		if(!d.exists()){
+			d.mkdirs();
+		}
 		File[] files = d.listFiles();
 		String fileList= "";
 		for(int i=0;i<files.length;i++){
