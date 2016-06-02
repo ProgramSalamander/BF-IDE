@@ -216,20 +216,23 @@ public class MainFrame extends JFrame {
 							JFrame registFrame = new JFrame("注册窗口");
 							GridBagLayout gridBagLayout = new GridBagLayout();
 							GridBagConstraints constraints = new GridBagConstraints();
-							constraints.fill = GridBagConstraints.NORTH;
+							constraints.fill = GridBagConstraints.BOTH;
 							constraints.anchor = GridBagConstraints.CENTER;
-							constraints.weightx = 3;
-							constraints.weighty = 5;
+							constraints.weightx = 4;
+							constraints.weighty = 6;
 							registFrame.setLayout(gridBagLayout);
 							JButton ok = new JButton("确认");
 							JButton cancel = new JButton("取消");
 							JLabel title = new JLabel("注册Lunar Eclipse");
 							JLabel userID = new JLabel("用户名");
 							JLabel password = new JLabel("请输入密码");
-							JLabel assurepassword = new JLabel("再次输入密码");
-							JTextField nameField = new JTextField(15);
-							JPasswordField passwordField = new JPasswordField(15);
-							JPasswordField assurepasswordField = new JPasswordField(15);
+							JLabel assurepassword = new JLabel("确认密码");
+							JTextField nameField = new JTextField(10);
+							JPasswordField passwordField = new JPasswordField(10);
+							JPasswordField assurepasswordField = new JPasswordField(10);
+							JTextField captchaField = new JTextField(10);
+							CAPTCHA captcha = new CAPTCHA();
+							JLabel captchaLabel = new JLabel("验证码");
 							constraints.gridx = 1;
 							constraints.gridy = 0;
 							constraints.gridheight = 1;
@@ -266,15 +269,30 @@ public class MainFrame extends JFrame {
 							constraints.gridwidth = 2;
 							registFrame.add(assurepasswordField, constraints);
 							constraints.gridx = 0;
-							constraints.gridy = 4;
+							constraints.gridy = 5;
 							constraints.gridheight = 1;
 							constraints.gridwidth = 1;
 							registFrame.add(ok, constraints);
 							constraints.gridx = 2;
-							constraints.gridy = 4;
+							constraints.gridy = 5;
 							constraints.gridheight = 1;
 							constraints.gridwidth = 1;
 							registFrame.add(cancel, constraints);
+							constraints.gridx = 0;
+							constraints.gridy = 4;
+							constraints.gridheight = 1;
+							constraints.gridwidth = 1;
+							registFrame.add(captchaLabel, constraints);
+							constraints.gridx = 1;
+							constraints.gridy = 4;
+							constraints.gridheight = 1;
+							constraints.gridwidth = 1;
+							registFrame.add(captchaField, constraints);
+							constraints.gridx = 2;
+							constraints.gridy = 4;
+							constraints.gridheight = 1;
+							constraints.gridwidth = 1;
+							registFrame.add(captcha, constraints);
 
 							ok.addActionListener(new ActionListener() {
 
@@ -283,10 +301,19 @@ public class MainFrame extends JFrame {
 									String username = nameField.getText();
 									String password = new String(passwordField.getPassword());
 									String assurepassword = new String(assurepasswordField.getPassword());
+									String captch = captchaField.getText();
+									String cap = captcha.getCaptcha();
 									try {
-										if (RemoteHelper.getInstance().getUserService().regist(username, password,
-												assurepassword)) {
-											registFrame.dispose();
+										if(username.length()==0 ||password.length()==0||assurepassword.length()==0){
+											JOptionPane.showMessageDialog(null, "输入信息不完整！");
+										}
+										else if ((captch.length()==0)||(!cap.equals(captch))) {
+											JOptionPane.showMessageDialog(null, "验证码不一致！");
+										}
+										else {
+											if(RemoteHelper.getInstance().getUserService().regist(username, password,assurepassword)){
+												registFrame.dispose();
+											}
 										}
 									} catch (RemoteException e1) {
 										e1.printStackTrace();
@@ -329,7 +356,8 @@ public class MainFrame extends JFrame {
 					int option = 0;
 					if (option == JOptionPane.YES_OPTION) {
 						frame.setTitle("Lunar Eclipse  (Not Logined)");
-						RemoteHelper.getInstance().setUser(null);
+						RemoteHelper.getInstance().setUser("default");
+						currentUser="default";
 					}
 				}
 			}

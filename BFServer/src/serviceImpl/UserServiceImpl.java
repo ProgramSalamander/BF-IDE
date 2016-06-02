@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService{
 				
 				String s;
 				while ((s =bufferedReader.readLine())!=null) {
-					if(s.contains(username)){
+					if(s.equals(username)){
 						JOptionPane.showMessageDialog(null, "用户已存在！");
 						bufferedReader.close();
 						bufferedWriter.close();
