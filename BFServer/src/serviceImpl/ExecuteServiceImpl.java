@@ -8,7 +8,7 @@ import service.UserService;
 
 public class ExecuteServiceImpl implements ExecuteService {
 	// BF数组大小
-	private int BFArraySize = 1024;
+	private int BFArraySize = 128;
 	// BF数组(其中存储的是字节的值)
 	private char[] BFArray = new char[BFArraySize];
 	// BF指针的位置
@@ -135,6 +135,17 @@ public class ExecuteServiceImpl implements ExecuteService {
 		}
 
 		return result;
+	}
+	public int getBFArraySize() throws RemoteException{
+		return BFArraySize;
+	}
+
+	public char[] getBFArray() throws RemoteException {
+		return BFArray;
+	}
+
+	public int getBFPointer() throws RemoteException {
+		return BFPointer;
 	}
 
 }

@@ -66,6 +66,21 @@ public class DataRemoteObject extends UnicastRemoteObject implements IOService, 
 		return userService.regist(username, password,assurepassword);
 	}
 
+	@Override
+	public int getBFArraySize() throws RemoteException {
+		return executeService.getBFArraySize();
+	}
+
+	@Override
+	public char[] getBFArray() throws RemoteException {
+		return executeService.getBFArray();
+	}
+
+	@Override
+	public int getBFPointer() throws RemoteException {
+		return executeService.getBFPointer();
+	}
+
 
 
 }

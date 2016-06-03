@@ -13,4 +13,7 @@ public interface ExecuteService extends Remote {
 	 * @throws RemoteException
 	 */
 	public String execute(String code, String param) throws RemoteException,Exception;
+	public int getBFArraySize()throws RemoteException ;
+	public char[] getBFArray()throws RemoteException ;
+	public int getBFPointer()throws RemoteException ;
 }

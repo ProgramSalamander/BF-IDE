@@ -22,24 +22,10 @@ public class MainFrame extends JFrame {
 	private static final int tail = 19;
 	private int counter = head;
 	private String[] gitCode = new String[tail + 1];
+	private ExtraFrame  extraFrame;
 
 	public MainFrame() {
 		// 创建窗体
-		// try {
-		// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		// } catch (ClassNotFoundException e2) {
-		// // TODO 自动生成的 catch 块
-		// e2.printStackTrace();
-		// } catch (InstantiationException e2) {
-		// // TODO 自动生成的 catch 块
-		// e2.printStackTrace();
-		// } catch (IllegalAccessException e2) {
-		// // TODO 自动生成的 catch 块
-		// e2.printStackTrace();
-		// } catch (UnsupportedLookAndFeelException e2) {
-		// // TODO 自动生成的 catch 块
-		// e2.printStackTrace();
-		// }
 		frame = new JFrame("Lunar Eclipse  (Not Logined)");
 		frame.setLayout(null);
 		frame.setResizable(false);
@@ -61,9 +47,10 @@ public class MainFrame extends JFrame {
 		JMenu fileMenu = new JMenu("File");
 		JMenu codeMenu = new JMenu("Code");
 		JMenu helpMenu = new JMenu("Help");
-		helpMenu.setSelected(false);
+		JMenu arrayMenu = new JMenu("Array");
 		menuBar.add(fileMenu);
 		menuBar.add(codeMenu);
+		menuBar.add(arrayMenu);
 		menuBar.add(helpMenu);
 
 		JMenuItem newMenuItem = new JMenuItem("New", 'N');
@@ -108,11 +95,16 @@ public class MainFrame extends JFrame {
 		runMenuItem.addActionListener(new RunActionListener());
 		undoMenu.addMouseListener(new UndoListener());
 		redoMenu.addMouseListener(new RedoListener());
-		helpMenu.addMouseListener(new MouseAdapter() {
-
+		arrayMenu.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 
+				extraFrame.setVisible(true);
+			}
+		});
+		helpMenu.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
 				JOptionPane.showMessageDialog(null,
 						"欢迎使用此BF的IDE！\n在这里你可以将你的BF代码输入至主界面Code区域\n同时将你的参数输入左下角的Input区域，便可在右下角的Output区域中看到代码执行的结果");
 			}
@@ -402,7 +394,17 @@ public class MainFrame extends JFrame {
 					}
 			}
 		});
-		// SwingUtilities.updateComponentTreeUI(frame);
+		extraFrame = new ExtraFrame();
+		extraFrame.setLocation(x+WIDTH-5, y);
+		int bfSize;
+		try {
+			bfSize = RemoteHelper.getInstance().getExecuteService().getBFArraySize();
+			extraFrame.setBfSize(bfSize);
+		} catch (RemoteException e1) {
+			// TODO 自动生成的 catch 块
+			e1.printStackTrace();
+		}
+	
 		frame.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		frame.setSize(WIDTH, HEIGHT);
 		frame.setLocation(x, y);
@@ -502,6 +504,14 @@ public class MainFrame extends JFrame {
 					resultlabel.setText(result);
 				} else {
 					resultlabel.setText("解释失败...");
+				}
+				char[] bfArray = RemoteHelper.getInstance().getExecuteService().getBFArray();
+
+				for(int i =0;i<bfArray.length;i++){
+					if(bfArray[i]!=0){
+						extraFrame.changeLabel(i, bfArray[i]);
+						extraFrame.changeColor(i);
+					}
 				}
 			} catch (Exception e1) {
 				e1.printStackTrace();
