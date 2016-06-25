@@ -8,6 +8,19 @@ import java.util.Calendar;
 
 import javax.swing.*;
 
+import org.jvnet.substance.SubstanceLookAndFeel;
+import org.jvnet.substance.border.StandardBorderPainter;
+import org.jvnet.substance.button.ClassicButtonShaper;
+import org.jvnet.substance.painter.StandardGradientPainter;
+import org.jvnet.substance.skin.EmeraldDuskSkin;
+import org.jvnet.substance.skin.SubstanceAutumnLookAndFeel;
+import org.jvnet.substance.theme.SubstanceBottleGreenTheme;
+import org.jvnet.substance.theme.SubstanceLightAquaTheme;
+import org.jvnet.substance.theme.SubstanceTerracottaTheme;
+import org.jvnet.substance.theme.SubstanceTheme;
+import org.jvnet.substance.watermark.SubstanceBubblesWatermark;
+import org.jvnet.substance.watermark.SubstanceCrosshatchWatermark;
+
 import rmi.RemoteHelper;
 
 public class MainFrame extends JFrame {
@@ -18,12 +31,10 @@ public class MainFrame extends JFrame {
 	private JFrame frame;
 	private JLabel resultlabel;
 	private String currentUser = "default";
-	private static final int head = 0;
-	private static final int tail = 19;
-	private int counter = head;
-	private String[] gitCode = new String[tail + 1];
 	private ExtraFrame  extraFrame;
-
+	private RedoUndoStack redoUndoStack = new RedoUndoStack();
+	private String currentFile = "";
+	private boolean isSameFile = false;
 	public MainFrame() {
 		// 创建窗体
 		frame = new JFrame("Lunar Eclipse  (Not Logined)");
@@ -93,12 +104,21 @@ public class MainFrame extends JFrame {
 		openMenuItem.addActionListener(new OpenActionListener());
 		saveMenuItem.addActionListener(new SaveActionListener());
 		runMenuItem.addActionListener(new RunActionListener());
-		undoMenu.addMouseListener(new UndoListener());
-		redoMenu.addMouseListener(new RedoListener());
+		undoMenu.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				codeArea.setText(redoUndoStack.undoPush());
+			}
+		});
+		redoMenu.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				codeArea.setText(redoUndoStack.redoPush());
+			}
+		});
 		arrayMenu.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-
 				extraFrame.setVisible(true);
 			}
 		});
@@ -144,7 +164,7 @@ public class MainFrame extends JFrame {
 					constraints.gridx = 1;
 					constraints.gridy = 1;
 					constraints.gridheight = 1;
-					constraints.gridwidth = 1;
+					constraints.gridwidth = 2;
 					loginFrame.add(nameField, constraints);
 					constraints.gridx = 0;
 					constraints.gridy = 2;
@@ -154,7 +174,7 @@ public class MainFrame extends JFrame {
 					constraints.gridx = 1;
 					constraints.gridy = 2;
 					constraints.gridheight = 1;
-					constraints.gridwidth = 1;
+					constraints.gridwidth = 2;
 					loginFrame.add(passwordField, constraints);
 					constraints.gridx = 0;
 					constraints.gridy = 3;
@@ -364,7 +384,13 @@ public class MainFrame extends JFrame {
 		codeArea.setFont(new Font("TimesRoman", Font.BOLD, 20));
 		codeArea.setMargin(new Insets(30, 30, 30, 30));
 		codeArea.setBackground(Color.LIGHT_GRAY);
-		codeArea.addKeyListener(new KeyTypedListener());
+		codeArea.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				redoUndoStack.pop(codeArea.getText());
+			}
+			
+		});
 
 		JScrollPane scrollPane = new JScrollPane(codeArea);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -404,10 +430,25 @@ public class MainFrame extends JFrame {
 			// TODO 自动生成的 catch 块
 			e1.printStackTrace();
 		}
-	
+		//外观设计
+		
+			try {
+				UIManager.setLookAndFeel(new SubstanceLookAndFeel());
+			} catch (UnsupportedLookAndFeelException e1) {
+				// TODO 自动生成的 catch 块
+				e1.printStackTrace();
+			} 
+            SubstanceLookAndFeel.setCurrentTheme(new SubstanceLightAquaTheme());  
+          SubstanceLookAndFeel.setCurrentButtonShaper(new ClassicButtonShaper());    
+		
+        
+			
+		
 		frame.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		frame.setSize(WIDTH, HEIGHT);
 		frame.setLocation(x, y);
+		Image icon = toolkit.getImage("C:\\Users\\Ferriswheel\\Pictures\\图标\\1.jpg");
+		frame.setIconImage(icon);
 		frame.setVisible(true);
 	}
 
@@ -418,6 +459,8 @@ public class MainFrame extends JFrame {
 			codeArea.setText("");
 			inputArea.setText("");
 			resultlabel.setText("result");
+			extraFrame.repaint();
+			isSameFile = false;
 		}
 	}
 
@@ -450,6 +493,8 @@ public class MainFrame extends JFrame {
 									String code = RemoteHelper.getInstance().getIOService().readFile(currentUser,
 											name[1]);
 									codeArea.setText(code);
+									isSameFile = true;
+									currentFile = name[1];
 									openFrame.dispose();
 								} catch (RemoteException e1) {
 									e1.printStackTrace();
@@ -470,7 +515,7 @@ public class MainFrame extends JFrame {
 			} catch (RemoteException e1) {
 				e1.printStackTrace();
 			}
-
+			
 			openFrame.setVisible(true);
 			openFrame.pack();
 		}
@@ -482,13 +527,20 @@ public class MainFrame extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String code = codeArea.getText();
-			try {
-				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-				String string = simpleDateFormat.format(Calendar.getInstance().getTime());
-				RemoteHelper.getInstance().getIOService().writeFile(code, currentUser, string);
-			} catch (RemoteException e1) {
-				e1.printStackTrace();
+			if(isSameFile){
+				try {
+					RemoteHelper.getInstance().getIOService().writeFile(code, currentUser, currentFile);
+				} catch (RemoteException e1) {
+					// TODO 自动生成的 catch 块
+					e1.printStackTrace();
+				}
 			}
+			else {
+				SaveCodeFrame saveCodeFrame = new SaveCodeFrame(code,currentUser);
+				isSameFile = true;
+				currentFile = saveCodeFrame.name;
+			}
+			
 		}
 	}
 
@@ -517,116 +569,6 @@ public class MainFrame extends JFrame {
 				e1.printStackTrace();
 				resultlabel.setText(e1.getMessage());
 			}
-		}
-
-	}
-
-	class UndoListener implements MouseListener {
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			if (counter > 0) {
-				counter--;
-				if(gitCode[counter]!=null){
-					codeArea.setText(gitCode[counter]);
-				}
-				else {
-					counter++;
-				}
-			} else {
-				counter = tail;
-				if(gitCode[counter]!=null){
-					codeArea.setText(gitCode[counter]);
-				}
-			
-			}
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-
-		}
-
-	}
-
-	class RedoListener implements MouseListener {
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			if (counter < tail) {
-				counter++;
-				if(gitCode[counter]!=null){
-					codeArea.setText(gitCode[counter]);
-				}
-				else {
-					counter--;
-				}
-				
-			} else {
-				counter = head;
-				if(gitCode[counter]!=null){
-					codeArea.setText(gitCode[counter]);
-				}
-					
-			}
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-
-		}
-
-	}
-
-	class KeyTypedListener implements KeyListener {
-
-		@Override
-		public void keyTyped(KeyEvent e) {
-			if (counter < tail) {
-				gitCode[counter] = codeArea.getText();
-				counter++;
-			} else {
-				gitCode[counter] = codeArea.getText();
-				counter = head;
-			}
-		}
-
-		@Override
-		public void keyPressed(KeyEvent e) {
-			
-		}
-
-		@Override
-		public void keyReleased(KeyEvent e) {
-			
 		}
 
 	}

@@ -1,4 +1,4 @@
-//请不要修改本文件名
+//请不要修改本文件�?
 package serviceImpl;
 
 import java.rmi.RemoteException;
@@ -9,9 +9,9 @@ import service.UserService;
 public class ExecuteServiceImpl implements ExecuteService {
 	// BF数组大小
 	private int BFArraySize = 128;
-	// BF数组(其中存储的是字节的值)
+	// BF数组(其中存储的是字节的�??)
 	private char[] BFArray = new char[BFArraySize];
-	// BF指针的位置
+	// BF指针的位�?
 	private int BFPointer;
 	// BF当前解释的字符在code中的位置
 	private int BFPosition;
@@ -25,7 +25,7 @@ public class ExecuteServiceImpl implements ExecuteService {
 	 */
 	@Override
 	public String execute(String code, String param) throws RemoteException, Exception {
-		// 初始化
+		// 初始�?
 		BFPointer = 0;
 		BFPosition = 0;
 		BFjumper = 0;
@@ -33,7 +33,7 @@ public class ExecuteServiceImpl implements ExecuteService {
 			BFArray[i] = 0;
 		}
 
-		// 设定返回值
+		// 设定返回�?
 		String result = "";
 
 		// 将BF字符串转换成字符数组
@@ -42,7 +42,7 @@ public class ExecuteServiceImpl implements ExecuteService {
 			codeArray[i] = code.substring(i, i + 1).charAt(0);
 		}
 
-		// 检查代码正确性
+		// �?查代码正确�??
 		int counter = 0;
 		for (int i = 0; i < code.length(); i++) {
 			if (codeArray[i] == '[') {
@@ -59,7 +59,7 @@ public class ExecuteServiceImpl implements ExecuteService {
 			throw new Exception("Dead loop");
 		}
 
-		// 将输入的数值转化成数组
+		// 将输入的数�?�转化成数组
 		String[] params = new String[param.length() + 1];
 		for (int i = 0; i < param.length(); i++) {
 			params[i] = param.substring(i, i + 1);
