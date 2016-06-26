@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.swing.*;
@@ -31,10 +32,11 @@ public class MainFrame extends JFrame {
 	private JFrame frame;
 	private JLabel resultlabel;
 	private String currentUser = "default";
-	private ExtraFrame  extraFrame;
+	private ExtraFrame extraFrame;
 	private RedoUndoStack redoUndoStack = new RedoUndoStack();
 	private String currentFile = "";
 	private boolean isSameFile = false;
+
 	public MainFrame() {
 		// 创建窗体
 		frame = new JFrame("Lunar Eclipse  (Not Logined)");
@@ -59,8 +61,10 @@ public class MainFrame extends JFrame {
 		JMenu codeMenu = new JMenu("Code");
 		JMenu helpMenu = new JMenu("Help");
 		JMenu arrayMenu = new JMenu("Array");
+		JMenu gitMenu = new JMenu("Git");
 		menuBar.add(fileMenu);
 		menuBar.add(codeMenu);
+		menuBar.add(gitMenu);
 		menuBar.add(arrayMenu);
 		menuBar.add(helpMenu);
 
@@ -128,6 +132,64 @@ public class MainFrame extends JFrame {
 				JOptionPane.showMessageDialog(null,
 						"欢迎使用此BF的IDE！\n在这里你可以将你的BF代码输入至主界面Code区域\n同时将你的参数输入左下角的Input区域，便可在右下角的Output区域中看到代码执行的结果");
 			}
+		});
+		gitMenu.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				JFrame openFrame = new JFrame("回到历史版本");
+				openFrame.setResizable(false);
+				openFrame.setSize(300, 300);
+				Box vBox = Box.createVerticalBox();
+				openFrame.setLocation(frame.getLocationOnScreen().x, frame.getLocationOnScreen().y + 50);
+				openFrame.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowClosed(WindowEvent e) {
+						openFrame.dispose();
+					}
+				});
+				try {
+					String[] list = RemoteHelper.getInstance().getIOService().readGitFile(currentUser, currentFile);
+					String name = "";
+					for (int i = 0; i < list.length; i++) {
+						name = list[i].split("#")[0];
+						JButton button = new JButton(name);
+						button.addActionListener(new ActionListener() {
+
+							@Override
+							public void actionPerformed(ActionEvent e) {
+								String code;
+								String name = button.getText();
+								
+								try {
+									String[] list = RemoteHelper.getInstance().getIOService().readGitFile(currentUser, currentFile);
+									for(int i=0;i<list.length;i++){
+										if (name.equals(list[i].split("#")[0])) {
+											codeArea.setText(list[i].split("#")[1]);
+											break;
+										}
+									}
+								} catch (RemoteException e1) {
+									// TODO 自动生成的 catch 块
+									e1.printStackTrace();
+								}	
+								openFrame.dispose();
+							}
+						});
+						vBox.add(button);
+					}
+					JScrollPane scrollPane = new JScrollPane(vBox, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+							JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+					scrollPane.setAutoscrolls(true);
+					openFrame.setContentPane(scrollPane);
+				} catch (RemoteException e1) {
+					// TODO 自动生成的 catch 块
+					e1.printStackTrace();
+				}
+				openFrame.setVisible(true);
+				openFrame.pack();
+			}
+
 		});
 		userMenu.addMouseListener(new MouseAdapter() {
 
@@ -316,14 +378,14 @@ public class MainFrame extends JFrame {
 									String captch = captchaField.getText();
 									String cap = captcha.getCaptcha();
 									try {
-										if(username.length()==0 ||password.length()==0||assurepassword.length()==0){
+										if (username.length() == 0 || password.length() == 0
+												|| assurepassword.length() == 0) {
 											JOptionPane.showMessageDialog(null, "输入信息不完整！");
-										}
-										else if ((captch.length()==0)||(!cap.equals(captch))) {
+										} else if ((captch.length() == 0) || (!cap.equals(captch))) {
 											JOptionPane.showMessageDialog(null, "验证码不一致！");
-										}
-										else {
-											if(RemoteHelper.getInstance().getUserService().regist(username, password,assurepassword)){
+										} else {
+											if (RemoteHelper.getInstance().getUserService().regist(username, password,
+													assurepassword)) {
 												registFrame.dispose();
 											}
 										}
@@ -369,7 +431,7 @@ public class MainFrame extends JFrame {
 					if (option == JOptionPane.YES_OPTION) {
 						frame.setTitle("Lunar Eclipse  (Not Logined)");
 						RemoteHelper.getInstance().setUser("default");
-						currentUser="default";
+						currentUser = "default";
 					}
 				}
 			}
@@ -389,7 +451,7 @@ public class MainFrame extends JFrame {
 			public void keyTyped(KeyEvent e) {
 				redoUndoStack.pop(codeArea.getText());
 			}
-			
+
 		});
 
 		JScrollPane scrollPane = new JScrollPane(codeArea);
@@ -421,7 +483,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 		extraFrame = new ExtraFrame();
-		extraFrame.setLocation(x+WIDTH-5, y);
+		extraFrame.setLocation(x + WIDTH - 5, y);
 		int bfSize;
 		try {
 			bfSize = RemoteHelper.getInstance().getExecuteService().getBFArraySize();
@@ -430,20 +492,17 @@ public class MainFrame extends JFrame {
 			// TODO 自动生成的 catch 块
 			e1.printStackTrace();
 		}
-		//外观设计
-		
-			try {
-				UIManager.setLookAndFeel(new SubstanceLookAndFeel());
-			} catch (UnsupportedLookAndFeelException e1) {
-				// TODO 自动生成的 catch 块
-				e1.printStackTrace();
-			} 
-            SubstanceLookAndFeel.setCurrentTheme(new SubstanceLightAquaTheme());  
-          SubstanceLookAndFeel.setCurrentButtonShaper(new ClassicButtonShaper());    
-		
-        
-			
-		
+		// 外观设计
+
+//		try {
+//			UIManager.setLookAndFeel(new SubstanceLookAndFeel());
+//		} catch (UnsupportedLookAndFeelException e1) {
+//			// TODO 自动生成的 catch 块
+//			e1.printStackTrace();
+//		}
+//		SubstanceLookAndFeel.setCurrentTheme(new SubstanceLightAquaTheme());
+//		SubstanceLookAndFeel.setCurrentButtonShaper(new ClassicButtonShaper());
+
 		frame.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		frame.setSize(WIDTH, HEIGHT);
 		frame.setLocation(x, y);
@@ -515,7 +574,7 @@ public class MainFrame extends JFrame {
 			} catch (RemoteException e1) {
 				e1.printStackTrace();
 			}
-			
+
 			openFrame.setVisible(true);
 			openFrame.pack();
 		}
@@ -527,20 +586,26 @@ public class MainFrame extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String code = codeArea.getText();
-			if(isSameFile){
+			// 同一个文件继续保存，将保存的内容添加到git中
+			if (isSameFile) {
 				try {
+					RemoteHelper.getInstance().getIOService().gitFile(currentUser, currentFile, code);
 					RemoteHelper.getInstance().getIOService().writeFile(code, currentUser, currentFile);
 				} catch (RemoteException e1) {
-					// TODO 自动生成的 catch 块
 					e1.printStackTrace();
 				}
 			}
+			// 不同文件保存，新建文件保存
 			else {
-				SaveCodeFrame saveCodeFrame = new SaveCodeFrame(code,currentUser);
+				SaveCodeFrame saveCodeFrame = new SaveCodeFrame(code, currentUser);
 				isSameFile = true;
 				currentFile = saveCodeFrame.name;
+				try {
+					RemoteHelper.getInstance().getIOService().gitFile(currentUser, currentFile, code);
+				} catch (RemoteException e1) {
+					e1.printStackTrace();
+				}
 			}
-			
 		}
 	}
 
@@ -559,8 +624,8 @@ public class MainFrame extends JFrame {
 				}
 				char[] bfArray = RemoteHelper.getInstance().getExecuteService().getBFArray();
 
-				for(int i =0;i<bfArray.length;i++){
-					if(bfArray[i]!=0){
+				for (int i = 0; i < bfArray.length; i++) {
+					if (bfArray[i] != 0) {
 						extraFrame.changeLabel(i, bfArray[i]);
 						extraFrame.changeColor(i);
 					}

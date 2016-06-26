@@ -7,6 +7,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 import service.IOService;
 
@@ -81,6 +84,57 @@ public class IOServiceImpl implements IOService{
 			}
 		}
 		return fileList;
+	}
+
+	@Override
+	public boolean gitFile(String userId,String fileName,String code) throws RemoteException {
+		File file = new File(userId+"_"+fileName);
+		if(!file.exists()){
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			FileWriter fileWriter = new FileWriter(file,true);
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd-H-m-s");
+			String string = simpleDateFormat.format(Calendar.getInstance().getTime());
+			fileWriter.write(string+"#"+code+"\n");
+			fileWriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}	
+		return false;
+	}
+
+	@Override
+	public String[] readGitFile(String userId, String fileName) throws RemoteException {
+		File file = new File(userId+"_"+fileName);
+		if(!file.exists()){
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
+			}
+		}
+		ArrayList<String> list = new ArrayList<String>();
+		try {
+			FileReader fileReader = new FileReader(file);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			String line="";
+			while((line=bufferedReader.readLine())!=null){
+				list.add(line);
+			}
+			bufferedReader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	
+		String[] lists = new String[list.size()];
+		lists = list.toArray(lists);
+		return lists;
 	}
 
 	

@@ -81,6 +81,17 @@ public class DataRemoteObject extends UnicastRemoteObject implements IOService, 
 		return executeService.getBFPointer();
 	}
 
+	@Override
+	public boolean gitFile(String userId,String fileName,String code) throws RemoteException {
+		return iOService.gitFile(userId, fileName,code);
+	}
+
+	@Override
+	public String[] readGitFile(String userId, String fileName) throws RemoteException {
+		// TODO 自动生成的方法存根
+		return iOService.readGitFile(userId, fileName);
+	}
+
 
 
 }
